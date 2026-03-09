@@ -79,6 +79,7 @@ data <- orders_clean %>%
 data <- data %>%
   filter(!is.na(Description))
 
+
 # Calculate revenue
 data <- data %>%
   mutate(Revenue = Quantity * UnitPrice)

@@ -66,6 +66,8 @@ orders_clean <- orders %>%
   filter(Quantity > 0) %>%                   # remove negative quantities
   mutate(StockCode = toupper(StockCode))    # standardize stock codes
 
+data <- data %>%
+  filter(!Description %in% c("Adjust bad debt", "adjustment", "thrown away"))
 products <- products %>%
   mutate(StockCode = toupper(StockCode))
 
@@ -120,42 +122,330 @@ ggplot(top10, aes(x=reorder(Description,TotalRevenue), y=TotalRevenue))+
 This analysis represent the revenue generated from the sale of a number of products is significant. This indicates that revenue concentration exists, which means that the products that have generated the revenue are the ones that have performed better.
 
 ## Q2
+#Explanation of the Task
+
+The goal of this task is to identify the most valuable customers for the business and analyse their purchasing behaviour.
+
+First, the total spending of each customer is calculated by summing the revenue generated from all of their transactions. Revenue is defined as:
+Revenue = Quantity * Unit price
+Cancelled transactions (Invoice numbers starting with "C") must be excluded because they represent returned or cancelled purchases.
+
+After calculating the total spending per customer, the Top 5 highest-spending customers are identified.
+
+Then, for these customers, their purchasing behaviour is analysed by determining which products they purchased the most based on total quantity. This helps the business understand product preferences among its most valuable customers.
+
+
 #Calculate Customer Spending
 ```{r}
-customer_spending <- data %>%
+# Step 1: Remove rows with missing CustomerID
+data_clean <- data %>%
+  filter(!is.na(CustomerID))
+
+# Step 2: Calculate total spending per customer
+customer_spending <- data_clean %>%
   group_by(CustomerID) %>%
-  summarise(TotalSpending = sum(Revenue)) %>%
+  summarise(
+    TotalSpending = sum(Revenue, na.rm = TRUE)
+  ) %>%
   arrange(desc(TotalSpending))
+```
+
+```{r}
+class(data)
+ls()
+```
+
+
+```{r}
+ls()
 
 ```
-#Top 5 Customers
+
+
+#Identify Top 5 Highest Spending Customer
 ```{r}
-top_customers <- head(customer_spending,5)
-kable(top_customers)
+top_customers <- customer_spending %>%
+  slice_head(n = 5)
+
+# Display result
+knitr::kable(top_customers, caption = "Top 5 Highest Spending Customers")
+
 ```
- #Products Purchased by Top Customers
+ 
+#Analyse Purchasing Behaviour of Top Customers
 ```{r}
-top_customer_products <- data %>%
+top_customer_products <- data_clean %>%
   filter(CustomerID %in% top_customers$CustomerID) %>%
   group_by(CustomerID, Description) %>%
-  summarise(TotalQuantity = sum(Quantity)) %>%
-  arrange(desc(TotalQuantity))
+  summarise(
+    TotalQuantity = sum(Quantity, na.rm = TRUE),
+    .groups = "drop"
+  )
+
 ```
- # Visualization
+#Identify top products purchased by each customer
 ```{r}
-ggplot(top_customer_products,
+top_products_per_customer <- top_customer_products %>%
+  group_by(CustomerID) %>%
+  slice_max(TotalQuantity, n = 5) %>%
+  arrange(CustomerID, desc(TotalQuantity))
+
+# Display table
+knitr::kable(top_products_per_customer,
+             caption = "Top Purchased Products by High Value Customers")
+```
+
+```{r}
+#Visualization
+
+top_customer_products <- data_clean %>%
+  filter(CustomerID %in% top_customers$CustomerID) %>%
+  group_by(CustomerID, Description) %>%
+  summarise(TotalQuantity = sum(Quantity), .groups="drop")
+
+top_products_per_customer <- top_customer_products %>%
+  group_by(CustomerID) %>%
+  slice_max(TotalQuantity, n = 5)
+library(ggplot2)
+
+ggplot(top_products_per_customer,
        aes(x = reorder(Description, TotalQuantity),
            y = TotalQuantity,
            fill = factor(CustomerID))) +
   geom_bar(stat = "identity") +
   coord_flip() +
   labs(
-    title = "Top Purchased Products by Top Customers",
+    title = "Top Purchased Products by High-Value Customers",
     x = "Product Description",
     y = "Total Quantity Purchased",
     fill = "Customer ID"
   ) +
   theme_minimal()
 ```
- 
+```{r}
+# Check dataset structure
+str(data_clean)
+
+# Check number of unique customers
+n_distinct(data_clean$CustomerID)
+
+# Verify top customers
+print(top_customers)
+```
+
+#Interpretation
+
+The results show that a small number of customers generate a significant portion of the company's revenue. The top five customers have spent considerably more than the average customer, indicating that they are highly valuable to the business.
+
+By analysing their purchasing behaviour, it becomes clear that these customers frequently purchase specific products in large quantities. This suggests strong product preferences among high-value customers.
+
+From a business perspective, these customers are critical for maintaining revenue growth. The company could benefit from implementing loyalty programs, personalised promotions, or exclusive offers to retain these high-value customers. Additionally, ensuring that the products frequently purchased by these customers remain available in stock can help maintain customer satisfaction and continued spending.
+
+#Q3
+#(a) Explanation
+
+The aim of this task is to analyse product consumption across different countries to understand global market demand.
+
+First, the total revenue generated by each country is calculated. Revenue is defined as:
+Revenue = Quantity * Unit price
+The dataset already contains the calculated revenue variable from the previous task. Cancelled transactions were removed during the data cleaning stage, so only valid transactions are included in the analysis.
+
+The data is grouped by Country to determine the total revenue generated in each country. This allows us to identify which countries contribute the most to overall sales.
+
+Next, product consumption is analysed by identifying the single product with the highest total quantity sold in each country. This helps determine which products are most popular in different regions.
+
+Finally, the results are presented in a summary table and visualised using a bar chart to compare revenue across countries.
+
+```{r}
+# Calculate total revenue by country
+country_revenue <- data %>%
+  group_by(Country) %>%
+  summarise(TotalRevenue = sum(Revenue, na.rm = TRUE)) %>%
+  arrange(desc(TotalRevenue))
+
+# Display table
+kable(country_revenue, caption = "Total Revenue by Country")
+# Calculate quantity sold for each product in each country
+country_products <- data %>%
+  group_by(Country, Description) %>%
+  summarise(TotalQuantity = sum(Quantity, na.rm = TRUE), .groups = "drop")
+
+# Identify most sold product in each country
+top_product_country <- country_products %>%
+  group_by(Country) %>%
+  slice_max(TotalQuantity, n = 1)
+
+# Display table
+kable(top_product_country, caption = "Most Popular Product by Country")
+```
+
+```{r}
+#Revenue Comparison Across Countries
+ggplot(country_revenue,
+       aes(x = reorder(Country, TotalRevenue),
+           y = TotalRevenue)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(
+    title = "Total Revenue by Country",
+    x = "Country",
+    y = "Total Revenue"
+  ) +
+  theme_minimal()
+```
+#Interpretation
+
+The results show clear differences in revenue generation across countries. The United Kingdom generates the highest revenue, which is expected because the retailer is based in the UK and likely has a larger customer base there.
+
+Other European countries such as Germany, France, and the Netherlands also contribute significantly to the company's revenue. This indicates that the retailer has a strong presence in the European market.
+
+The analysis of product consumption shows that different countries have different product preferences. Some products are extremely popular in specific countries, suggesting that cultural preferences or seasonal demand may influence purchasing behaviour.
+
+From a business perspective, these insights can help the company:
+
+Identify high-performing international markets
+
+Adjust marketing strategies for different countries
+
+Promote products that are popular in specific regions
+
+Expand operations in countries with strong demand
+
+Understanding regional purchasing behaviour allows the business to better target customers and improve global sales performance.
+
+#Q4
+#(a) Explanation
+
+The purpose of this task is to analyse sales trends over time using the transaction date variable InvoiceDate.
+
+First, the month and year are extracted from the InvoiceDate variable to allow analysis of sales over time. This allows transactions to be grouped by month and year.
+
+Next, the total revenue for each month is calculated by summing the revenue generated from all transactions in that month. This helps identify which months generate the highest sales.
+
+In addition, the analysis identifies products that consistently appear among the lowest-selling products across multiple months. This helps determine which products perform poorly over time and may require review by the business.
+
+Finally, the monthly revenue trend is visualised using a time-series line plot to observe any patterns or seasonal effects in sales.
+
+```{r}
+# Load libraries
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(knitr)
+
+# Convert InvoiceDate to datetime and remove invalid dates
+data <- data %>%
+  mutate(InvoiceDate = dmy_hm(InvoiceDate)) %>%
+  filter(!is.na(InvoiceDate))
+
+# Create Year, Month, and YearMonth variables
+data <- data %>%
+  mutate(
+    Year = year(InvoiceDate),
+    Month = month(InvoiceDate),
+    YearMonth = floor_date(InvoiceDate, "month")
+  )
+
+# Inspect
+head(data)
+colnames(data)
+
+# Calculate monthly revenue
+monthly_revenue <- data %>%
+  group_by(YearMonth) %>%
+  summarise(TotalRevenue = sum(Revenue, na.rm = TRUE),
+            .groups = "drop")
+
+# Plot monthly revenue trend
+ggplot(monthly_revenue, aes(x = YearMonth, y = TotalRevenue)) +
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "red", size = 2) +
+  labs(
+    title = "Monthly Revenue Trend",
+    x = "Month",
+    y = "Total Revenue"
+  ) +
+  theme_minimal()
+
+# Check range and summary
+range(monthly_revenue$YearMonth)
+summary(monthly_revenue$YearMonth)
+
+```
+
+```{r}
+#Identify Highest Sales Months
+top_months <- monthly_revenue %>%
+  arrange(desc(TotalRevenue)) %>%
+  slice_head(n = 5)
+
+kable(top_months, caption = "Months with Highest Sales")
+
+# Identify top 5 highest revenue months
+top_months <- monthly_revenue %>%
+  arrange(desc(TotalRevenue)) %>%
+  slice_head(n = 5)
+
+# Display
+kable(top_months, caption = "Months with Highest Sales")
+```
+
+```{r}
+# Calculate monthly revenue per product
+monthly_product_sales <- data %>%
+  group_by(Year, Month, Description) %>%
+  summarise(
+    MonthlyRevenue = sum(Revenue, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Identify lowest-selling product per month
+lowest_products <- monthly_product_sales %>%
+  group_by(Year, Month) %>%
+  slice_min(MonthlyRevenue, n = 1, with_ties = FALSE)
+
+# Display
+kable(lowest_products, caption = "Lowest Selling Products per Month")
+
+```
+
+```{r}
+# Optional: Monthly revenue trend with Year-Month interaction
+monthly_revenue_interaction <- data %>%
+  group_by(Year, Month) %>%
+  summarise(TotalRevenue = sum(Revenue, na.rm = TRUE),
+            .groups = "drop")
+
+ggplot(monthly_revenue_interaction,
+       aes(x = interaction(Year, Month),
+           y = TotalRevenue,
+           group = 1)) +
+  geom_line(color = "darkgreen", size = 1) +
+  geom_point(color = "orange", size = 2) +
+  labs(
+    title = "Monthly Revenue Trend (Year-Month Interaction)",
+    x = "Month",
+    y = "Total Revenue"
+  ) +
+  theme_minimal()
+```
+#Interpretation
+
+The monthly revenue analysis reveals fluctuations in sales across different months. Some months show significantly higher revenue compared to others, suggesting the presence of seasonal demand patterns.
+
+For example, higher sales may occur during holiday seasons such as November and December, when customers tend to purchase more gifts and seasonal products. Lower sales months may occur during periods with less consumer spending.
+
+The analysis of lowest-selling products across months indicates that some products consistently perform poorly. These products may have limited demand, outdated designs, or may not appeal to the majority of customers.
+
+From a business perspective, these insights can help the company:
+
+Identify seasonal sales trends
+
+Improve inventory planning
+
+Plan promotional campaigns during low-sales periods
+
+Consider discontinuing or redesigning consistently low-performing products
+
+Understanding sales trends over time allows the business to make better strategic decisions and optimise revenue throughout the year.
 

@@ -1,22 +1,13 @@
 ---
 title: "COMP7024 Programming for Data Science"
 author: "B.M.D Amanda Rajapaksha (Student ID: 22216531)"
-date: "`r Sys.Date()`"
+date: "2026-03-10"
 output:
   pdf_document: default
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-library(tidyverse) 
-library(kableExtra)
-library(lubridate)
-library(knitr)
-library(ggplot2)
-library(stringr)
 
-```
 
 By including this statement, we the authors of this work, verify that:
 
@@ -35,12 +26,40 @@ may retain a copy on its database for future plagiarism checking).
 Engineering and Mathematics defines as minor and substantial breaches
 of misconduct as outlined in the learning guide for this unit.
 
-```{r}
+
+``` r
 orders <- read_csv("project_orders.csv")
 products <- read_csv("project_product_info.csv")
 
 head(orders)
+```
+
+```
+## # A tibble: 6 x 7
+##   InvoiceNo StockCode Quantity InvoiceDate    UnitPrice CustomerID Country      
+##   <chr>     <chr>        <dbl> <chr>              <dbl>      <dbl> <chr>        
+## 1 536365    85123A           6 1/12/2010 8:26      2.55      17850 United Kingd~
+## 2 536365    71053            6 1/12/2010 8:26      3.39      17850 United Kingd~
+## 3 536365    84406B           8 1/12/2010 8:26      2.75      17850 United Kingd~
+## 4 536365    84029G           6 1/12/2010 8:26      3.39      17850 United Kingd~
+## 5 536365    84029E           6 1/12/2010 8:26      3.39      17850 United Kingd~
+## 6 536365    22752            2 1/12/2010 8:26      7.65      17850 United Kingd~
+```
+
+``` r
 head(products)
+```
+
+```
+## # A tibble: 6 x 2
+##   StockCode Description                        
+##   <chr>     <chr>                              
+## 1 85123A    WHITE HANGING HEART T-LIGHT HOLDER 
+## 2 71053     WHITE METAL LANTERN                
+## 3 84406B    CREAM CUPID HEARTS COAT HANGER     
+## 4 84029G    KNITTED UNION FLAG HOT WATER BOTTLE
+## 5 84029E    RED WOOLLY HOTTIE WHITE HEART.     
+## 6 22752     SET 7 BABUSHKA NESTING BOXES
 ```
 
 
@@ -57,7 +76,8 @@ After that, the data is grouped by each product to calculate the total revenue g
 
 ### Code
 
-```{r}
+
+``` r
 # Data Cleaning
 orders_clean <- orders %>%
   filter(!str_detect(InvoiceNo, "^C")) %>%   # remove cancelled orders
@@ -104,13 +124,58 @@ top3_percentage <- sum(top3$TotalRevenue) / total_revenue * 100
 
 # Display tables
 kable(top10, caption = "Top 10 Products by Revenue")
+```
 
+
+
+Table: Top 10 Products by Revenue
+
+|StockCode |Description                        | TotalRevenue|
+|:---------|:----------------------------------|------------:|
+|85123A    |WHITE HANGING HEART T-LIGHT HOLDER |    212942.56|
+|DOT       |DOTCOM POSTAGE                     |    206248.77|
+|22423     |REGENCY CAKESTAND 3 TIER           |    174484.74|
+|23843     |PAPER CRAFT , LITTLE BIRDIE        |    168469.60|
+|M         |Manual                             |    156225.64|
+|47566     |PARTY BUNTING                      |     99504.33|
+|85099B    |JUMBO BAG RED RETROSPOT            |     94340.05|
+|23166     |MEDIUM CERAMIC TOP STORAGE JAR     |     81700.92|
+|POST      |POSTAGE                            |     78101.88|
+|23084     |RABBIT NIGHT LIGHT                 |     66964.99|
+
+``` r
 kable(bottom10, caption = "Bottom 10 Products by Revenue")
+```
 
+
+
+Table: Bottom 10 Products by Revenue
+
+|StockCode |Description                       | TotalRevenue|
+|:---------|:---------------------------------|------------:|
+|23001     |TRAVEL CARD WALLET DOTCOMGIFTSHOP |        0.000|
+|35600A    |Found by jackie                   |        0.000|
+|PADS      |PADS TO MATCH ALL CUSHIONS        |        0.003|
+|21268     |VINTAGE BLUE TINSEL REEL          |        0.840|
+|90084     |PINK CRYSTAL GUITAR PHONE CHARM   |        0.850|
+|84201C    |HAPPY BIRTHDAY CARD TEDDY/CAKE    |        0.950|
+|84206B    |CAT WITH SUNGLASSES BLANK CARD    |        0.950|
+|21009     |ETCHED GLASS STAR TREE DECORATION |        1.250|
+|35597A    |DUSTY PINK CHRISTMAS TREE 30CM    |        1.250|
+|35597B    |BLACKCHRISTMAS TREE 30CM          |        1.250|
+|84569C    |PACK 4 FLOWER/BUTTERFLY PATCHES   |        1.250|
+|84743C    |ORANGE FELT VASE + FLOWERS        |        1.250|
+
+``` r
 top3_percentage
 ```
 
-```{r}
+```
+## [1] 5.305872
+```
+
+
+``` r
 #Visualisation
 ggplot(top10, aes(x=reorder(Description, TotalRevenue), y=TotalRevenue)) +
   geom_bar(stat="identity", fill="steelblue") +
@@ -122,6 +187,8 @@ ggplot(top10, aes(x=reorder(Description, TotalRevenue), y=TotalRevenue)) +
   ) +
   theme_minimal()
 ```
+
+![](Assignment_files/figure-latex/unnamed-chunk-3-1.pdf)<!-- --> 
 
 ### Interpretation
 The results show that there are products that yield significantly higher revenues than others. For instance, products like WHITE HANGING HEART T-LIGHT HOLDER and REGENCY CAKESTAND 3 TIER are among those that yield high revenues. This suggests that there is a small group of products that yield a significant amount of revenue. The revenue distribution is a normal occurrence in retail businesses, in which a small group of products is responsible for generating most of the revenue. From the graph, it is clear that a small percentage of products contribute significantly higher revenue compared to the rest. WHITE HANGING HEART T-LIGHT HOLDER generates the highest revenue, followed by DOTCOM POSTAGE and then REGENCY CAKESTAND 3 TIER. This high difference between the top-generating products and the rest implies that revenue is generated by a small percentage of popular products that probably enjoy high and constant demand. However, there is also a group of products that yield low or even no revenue at all. This could be due to low sales of these products, or it could be that these products are simply entries.
@@ -138,7 +205,8 @@ The purpose of this study is to find the most valuable customers. The purchasing
 
 
 ## Calculate Customer Spending
-```{r}
+
+``` r
 # Step 1: Remove rows with missing CustomerID
 data_clean <- data %>%
   filter(!is.na(CustomerID))
@@ -152,30 +220,65 @@ customer_spending <- data_clean %>%
   arrange(desc(TotalSpending))
 ```
 
-```{r}
+
+``` r
 class(data)
+```
+
+```
+## [1] "tbl_df"     "tbl"        "data.frame"
+```
+
+``` r
 ls()
 ```
 
+```
+##  [1] "bottom10"          "customer_spending" "data"             
+##  [4] "data_clean"        "orders"            "orders_clean"     
+##  [7] "product_revenue"   "products"          "top10"            
+## [10] "top3"              "top3_percentage"   "total_revenue"
+```
 
-```{r}
+
+
+``` r
 ls()
+```
 
+```
+##  [1] "bottom10"          "customer_spending" "data"             
+##  [4] "data_clean"        "orders"            "orders_clean"     
+##  [7] "product_revenue"   "products"          "top10"            
+## [10] "top3"              "top3_percentage"   "total_revenue"
 ```
 
 
 ### Identify Top 5 Highest Spending Customer
-```{r}
+
+``` r
 top_customers <- customer_spending %>%
   slice_head(n = 5)
 
 # Display result
 knitr::kable(top_customers, caption = "Top 5 Highest Spending Customers")
-
 ```
+
+
+
+Table: Top 5 Highest Spending Customers
+
+| CustomerID| TotalSpending|
+|----------:|-------------:|
+|      14646|      287627.1|
+|      18102|      265212.8|
+|      17450|      208144.5|
+|      16446|      168472.5|
+|      14911|      153055.5|
  
 ### Analyse Purchasing Behaviour of Top Customers
-```{r}
+
+``` r
 top_customer_products <- data_clean %>%
   filter(CustomerID %in% top_customers$CustomerID) %>%
   group_by(CustomerID, Description) %>%
@@ -183,11 +286,11 @@ top_customer_products <- data_clean %>%
     TotalQuantity = sum(Quantity, na.rm = TRUE),
     .groups = "drop"
   )
-
 ```
 
 ### Identify top products purchased by each customer
-```{r}
+
+``` r
 top_products_per_customer <- top_customer_products %>%
   group_by(CustomerID) %>%
   slice_max(TotalQuantity, n = 5) %>%
@@ -198,7 +301,38 @@ knitr::kable(top_products_per_customer,
              caption = "Top Purchased Products by High Value Customers")
 ```
 
-```{r}
+
+
+Table: Top Purchased Products by High Value Customers
+
+| CustomerID|Description                         | TotalQuantity|
+|----------:|:-----------------------------------|-------------:|
+|      14646|RABBIT NIGHT LIGHT                  |          4801|
+|      14646|SPACEBOY LUNCH BOX                  |          4492|
+|      14646|PACK OF 72 RETROSPOT CAKE CASES     |          4104|
+|      14646|DOLLY GIRL LUNCH BOX                |          4096|
+|      14646|ROUND SNACK BOXES SET OF4 WOODLAND  |          3120|
+|      14911|WHITE HANGING HEART T-LIGHT HOLDER  |          1540|
+|      14911|60 CAKE CASES VINTAGE CHRISTMAS     |          1440|
+|      14911|SET OF 20 VINTAGE CHRISTMAS NAPKINS |          1140|
+|      14911|36 DOILIES VINTAGE CHRISTMAS        |          1068|
+|      14911|SMALL POPCORN HOLDER                |           928|
+|      16446|PAPER CRAFT , LITTLE BIRDIE         |         80995|
+|      16446|PANTRY PASTRY BRUSH                 |             1|
+|      16446|PANTRY SCRUBBING BRUSH              |             1|
+|      17450|WHITE HANGING HEART T-LIGHT HOLDER  |          8228|
+|      17450|HEART OF WICKER SMALL               |          5286|
+|      17450|HEART OF WICKER LARGE               |          4282|
+|      17450|GREEN VINTAGE SPOT BEAKER           |          3056|
+|      17450|PINK VINTAGE SPOT BEAKER            |          3056|
+|      18102|CREAM HEART CARD HOLDER             |          5946|
+|      18102|BLACK HEART CARD HOLDER             |          4104|
+|      18102|WOOD BLACK BOARD ANT WHITE FINISH   |          3205|
+|      18102|VINTAGE UNION JACK MEMOBOARD        |          2600|
+|      18102|DOORMAT BLACK FLOCK                 |          2426|
+
+
+``` r
 #Visualization
 
 top_customer_products <- data_clean %>%
@@ -225,15 +359,50 @@ ggplot(top_products_per_customer,
   ) +
   theme_minimal()
 ```
-```{r}
+
+![](Assignment_files/figure-latex/unnamed-chunk-10-1.pdf)<!-- --> 
+
+``` r
 # Check dataset structure
 str(data_clean)
+```
 
+```
+## tibble [412,426 x 9] (S3: tbl_df/tbl/data.frame)
+##  $ InvoiceNo  : chr [1:412426] "536365" "536365" "536365" "536365" ...
+##  $ StockCode  : chr [1:412426] "85123A" "85123A" "71053" "84406B" ...
+##  $ Quantity   : num [1:412426] 6 6 6 8 6 6 2 6 6 6 ...
+##  $ InvoiceDate: chr [1:412426] "1/12/2010 8:26" "1/12/2010 8:26" "1/12/2010 8:26" "1/12/2010 8:26" ...
+##  $ UnitPrice  : num [1:412426] 2.55 2.55 3.39 2.75 3.39 3.39 7.65 4.25 1.85 1.85 ...
+##  $ CustomerID : num [1:412426] 17850 17850 17850 17850 17850 ...
+##  $ Country    : chr [1:412426] "United Kingdom" "United Kingdom" "United Kingdom" "United Kingdom" ...
+##  $ Description: chr [1:412426] "WHITE HANGING HEART T-LIGHT HOLDER" "WHITE HANGING HEART T-LIGHT HOLDER" "WHITE METAL LANTERN" "CREAM CUPID HEARTS COAT HANGER" ...
+##  $ Revenue    : num [1:412426] 15.3 15.3 20.3 22 20.3 ...
+```
+
+``` r
 # Check number of unique customers
 n_distinct(data_clean$CustomerID)
+```
 
+```
+## [1] 4339
+```
+
+``` r
 # Verify top customers
 print(top_customers)
+```
+
+```
+## # A tibble: 5 x 2
+##   CustomerID TotalSpending
+##        <dbl>         <dbl>
+## 1      14646       287627.
+## 2      18102       265213.
+## 3      17450       208144.
+## 4      16446       168472.
+## 5      14911       153056.
 ```
 
 ## Interpretation
@@ -253,7 +422,8 @@ As can be understood from the above analysis, the high-value customers provide s
 The objective of this analysis is to evaluate the geographical distribution of the sales by determining the revenue generated and the demand for the products in different countries. This will provide valuable insights into the locations that generate the highest revenue and the popularity of the products. To do this, the transaction data set is used after eliminating the canceled orders and the invalid transactions. The revenue generated per transaction has already been computed as the product of Quantity and Unit Price. The data set is grouped based on the revenue generated per transaction, and the total revenue generated per country is computed. This will enable the determination of the countries that generate the highest revenue for the firm’s total sales. This will help in the evaluation of the geographical market concentration of the firm and determine whether the firm generates its revenue through domestic and international markets. Besides the revenue generated per transaction, the demand for the products is also evaluated by determining the most popular product sold in each country. This is achieved by grouping the data set based on the country and the description of the product, and the total quantity sold is computed.
 The product with the highest quantity sold is determined as the most popular product sold in that country. The integration of these two evaluations will enable the determination of the macro-level and the micro-level analysis of the firm’s sales and the products sold in the different countries.
 
-```{r}
+
+``` r
 # Calculate total revenue by country
 country_revenue <- data %>%
   group_by(Country) %>%
@@ -262,6 +432,54 @@ country_revenue <- data %>%
 
 # Display table
 kable(country_revenue, caption = "Total Revenue by Country")
+```
+
+
+
+Table: Total Revenue by Country
+
+|Country              | TotalRevenue|
+|:--------------------|------------:|
+|United Kingdom       |   9440957.77|
+|EIRE                 |    298532.43|
+|Netherlands          |    293140.27|
+|Germany              |    239772.03|
+|France               |    225434.63|
+|Australia            |    141021.41|
+|Spain                |     72565.62|
+|Switzerland          |     59581.72|
+|Belgium              |     42169.87|
+|Norway               |     39265.02|
+|Sweden               |     38596.50|
+|Portugal             |     38545.59|
+|Japan                |     37905.97|
+|Singapore            |     33651.53|
+|Finland              |     28471.75|
+|Hong Kong            |     22515.58|
+|Channel Islands      |     21434.89|
+|Denmark              |     19862.15|
+|Italy                |     18153.16|
+|Cyprus               |     14791.93|
+|Austria              |     11109.38|
+|Israel               |      8168.37|
+|Poland               |      7642.00|
+|Iceland              |      4817.30|
+|Unspecified          |      4800.55|
+|Greece               |      4795.62|
+|USA                  |      3778.84|
+|Canada               |      3695.10|
+|Malta                |      2926.49|
+|United Arab Emirates |      1967.68|
+|Lithuania            |      1780.46|
+|Lebanon              |      1711.58|
+|European Community   |      1459.65|
+|Brazil               |      1197.15|
+|RSA                  |      1021.78|
+|Czech Republic       |       826.74|
+|Bahrain              |       824.94|
+|Saudi Arabia         |       145.92|
+
+``` r
 # Calculate quantity sold for each product in each country
 country_products <- data %>%
   group_by(Country, Description) %>%
@@ -276,7 +494,77 @@ top_product_country <- country_products %>%
 kable(top_product_country, caption = "Most Popular Product by Country")
 ```
 
-```{r}
+
+
+Table: Most Popular Product by Country
+
+|Country              |Description                         | TotalQuantity|
+|:--------------------|:-----------------------------------|-------------:|
+|Australia            |MINI PAINT SET VINTAGE              |          2952|
+|Austria              |SET 12 KIDS COLOUR  CHALK STICKS    |           288|
+|Bahrain              |ICE CREAM SUNDAE LIP GLOSS          |            96|
+|Belgium              |FAIRY CAKES NOTEBOOK A7 SIZE        |           640|
+|Brazil               |DOLLY GIRL LUNCH BOX                |            24|
+|Brazil               |GREEN REGENCY TEACUP AND SAUCER     |            24|
+|Brazil               |PINK REGENCY TEACUP AND SAUCER      |            24|
+|Brazil               |ROSES REGENCY TEACUP AND SAUCER     |            24|
+|Brazil               |SET OF 4 PANTRY JELLY MOULDS        |            24|
+|Brazil               |SET OF 6 SPICE TINS PANTRY DESIGN   |            24|
+|Brazil               |SET/3 RED GINGHAM ROSE STORAGE BOX  |            24|
+|Brazil               |SMALL HEART FLOWERS HOOK            |            24|
+|Canada               |RETRO COFFEE MUGS ASSORTED          |           504|
+|Channel Islands      |RAIN PONCHO                         |           407|
+|Cyprus               |HEART DECORATION PAINTED ZINC       |           384|
+|Czech Republic       |WOODEN STAR CHRISTMAS SCANDINAVIAN  |            72|
+|Czech Republic       |WOODEN TREE CHRISTMAS SCANDINAVIAN  |            72|
+|Denmark              |RED  HARMONICA IN BOX               |           288|
+|EIRE                 |WHITE HANGING HEART T-LIGHT HOLDER  |          2184|
+|European Community   |CHARLIE AND LOLA FIGURES TINS       |            24|
+|European Community   |CHOCOLATE 1 WICK MORRIS BOX CANDLE  |            24|
+|European Community   |RED ROCKING HORSE HAND PAINTED      |            24|
+|European Community   |ROCKING HORSE GREEN CHRISTMAS       |            24|
+|European Community   |ROCKING HORSE RED CHRISTMAS         |            24|
+|European Community   |SET OF 60 PANTRY DESIGN CAKE CASES  |            24|
+|European Community   |SET OF 60 VINTAGE LEAF CAKE CASES   |            24|
+|European Community   |SET/3 VANILLA SCENTED CANDLE IN BOX |            24|
+|European Community   |WHITE ROCKING HORSE HAND PAINTED    |            24|
+|Finland              |PINK 3 PIECE POLKADOT CUTLERY SET   |          1104|
+|France               |RABBIT NIGHT LIGHT                  |          4024|
+|Germany              |ROUND SNACK BOXES SET OF4 WOODLAND  |          1233|
+|Greece               |4 LAVENDER BOTANICAL DINNER CANDLES |            48|
+|Greece               |4 PEAR BOTANICAL DINNER CANDLES     |            48|
+|Hong Kong            |PINK 3 PIECE POLKADOT CUTLERY SET   |           240|
+|Iceland              |3D DOG PICTURE PLAYING CARDS        |           252|
+|Israel               |WOODLAND CHARLOTTE BAG              |           130|
+|Italy                |FEATHER PEN,COAL BLACK              |           336|
+|Japan                |RABBIT NIGHT LIGHT                  |          3408|
+|Lebanon              |ASSTD FRUIT+FLOWERS FRIDGE MAGNETS  |            24|
+|Lithuania            |FELTCRAFT DOLL ROSIE                |            48|
+|Lithuania            |IVORY ENCHANTED FOREST PLACEMAT     |            48|
+|Lithuania            |RED  HARMONICA IN BOX               |            48|
+|Malta                |GRAND CHOCOLATECANDLE               |            81|
+|Netherlands          |RABBIT NIGHT LIGHT                  |          4801|
+|Norway               |SMALL FOLDING SCISSOR(POINTED EDGE) |           576|
+|Poland               |STRAWBERRY CERAMIC TRINKET BOX      |           168|
+|Portugal             |mailout                             |           376|
+|RSA                  |mailout                             |            20|
+|Saudi Arabia         |ASSORTED BOTTLE TOP  MAGNETS        |            12|
+|Saudi Arabia         |HOMEMADE JAM SCENTED CANDLES        |            12|
+|Saudi Arabia         |PLASTERS IN TIN CIRCUS PARADE       |            12|
+|Saudi Arabia         |PLASTERS IN TIN SKULLS              |            12|
+|Saudi Arabia         |PLASTERS IN TIN STRONGMAN           |            12|
+|Singapore            |CHRISTMAS TREE PAINTED ZINC         |           384|
+|Spain                |PINK 3 PIECE POLKADOT CUTLERY SET   |          2178|
+|Sweden               |MINI PAINT SET VINTAGE              |          2916|
+|Switzerland          |PLASTERS IN TIN WOODLAND ANIMALS    |           639|
+|USA                  |SET 12 COLOURING PENCILS DOILY      |            88|
+|United Arab Emirates |ASSORTED CHEESE FRIDGE MAGNETS      |            72|
+|United Arab Emirates |BIG DOUGHNUT FRIDGE MAGNETS         |            72|
+|United Kingdom       |PAPER CRAFT , LITTLE BIRDIE         |         80995|
+|Unspecified          |WORLD WAR 2 GLIDERS ASSTD DESIGNS   |            96|
+
+
+``` r
 #Revenue Comparison Across Countries
 ggplot(country_revenue,
        aes(x = reorder(Country, TotalRevenue),
@@ -290,6 +578,8 @@ ggplot(country_revenue,
   ) +
   theme_minimal()
 ```
+
+![](Assignment_files/figure-latex/unnamed-chunk-13-1.pdf)<!-- --> 
 ## Interpretation
 
 The results indicate that the United Kingdom generates the highest total revenue by a wide margin, contributing the majority of total sales. This is expected since the retailer is based in the UK, meaning that it is expected that this market would contain the greatest number of customers with a higher purchasing activity. In addition, a number of other European countries, including EIRE, the Netherlands, Germany, and France, contribute a significant amount of revenue to total sales. This implies that the retailer has managed to expand beyond its domestic market and establish operations within the European region. The fact that these countries perform well implies that this market segment is a key contributor to international operations for this company. In contrast, a number of countries contribute a smaller amount of revenue compared to others. This can be attributed to a number of reasons, including a smaller number of customers or a lack of marketing within these regions.
@@ -303,7 +593,8 @@ Overall, it is observed that the analysis highlights the significance of geograp
 ## Explaination
 
 This study aims to examine the sales trends over time through the use of the InvoiceDate variable. The main purpose of this analysis is to identify the sales trends over the months and understand the performance of products in different months.To start the analysis, the month and year are extracted from the Invoice variable. This allows the sales transactions to be grouped according to the months in which they were made.  Consistent with the assumptions provided in the assignment, the sales transactions that were cancelled are not considered in the analysis. The cancelled sales transactions are identified as the ones where the invoice number starts with the letter "C." After the data cleansing process, the total revenue generated in each month is then computed. This allows the identification of the months where the highest sales are generated. Moreover, this analysis allows the identification of the months where the sales are fluctuating. Finally, a time series plot is then created to show the sales trends over the months. This allows the identification of the months where the sales revenue is augmented and diminished. Aside from the sales trends over the months, the performance of the products is also analyzed over the months. The analysis identified the products where the lowest sales revenue is generated over the months.
-```{r}
+
+``` r
 # Load libraries
 library(dplyr)
 library(lubridate)
@@ -348,15 +639,49 @@ kable(monthly_revenue, caption = "Monthly Revenue")
 
 
 
-```{r}
+Table: Monthly Revenue
 
+|YearMonth  | TotalRevenue|
+|:----------|------------:|
+|2010-12-01 |     868633.0|
+|2011-01-01 |     738670.5|
+|2011-02-01 |     552508.4|
+|2011-03-01 |     759222.7|
+|2011-04-01 |     574832.9|
+|2011-05-01 |     813138.0|
+|2011-06-01 |     797622.3|
+|2011-07-01 |     773038.7|
+|2011-08-01 |     782023.9|
+|2011-09-01 |    1100624.5|
+|2011-10-01 |    1214039.9|
+|2011-11-01 |    1563225.5|
+|2011-12-01 |     651459.0|
+
+
+
+
+``` r
 #Identify Months with Highest Sales
 top_months <- monthly_revenue %>%
   arrange(desc(TotalRevenue)) %>%
   slice_head(n = 5)
 
 kable(top_months, caption = "Top 5 Months with Highest Sales")
+```
 
+
+
+Table: Top 5 Months with Highest Sales
+
+|YearMonth  | TotalRevenue|
+|:----------|------------:|
+|2011-11-01 |      1563226|
+|2011-10-01 |      1214040|
+|2011-09-01 |      1100625|
+|2010-12-01 |       868633|
+|2011-05-01 |       813138|
+
+``` r
 #Visualise Monthly Sales Trend (Time-Series Plot)
 ggplot(monthly_revenue, aes(x = YearMonth, y = TotalRevenue)) +
   geom_line(color = "steelblue", size = 1) +
@@ -367,7 +692,11 @@ ggplot(monthly_revenue, aes(x = YearMonth, y = TotalRevenue)) +
     y = "Total Revenue"
   ) +
   theme_minimal()
+```
 
+![](Assignment_files/figure-latex/unnamed-chunk-15-1.pdf)<!-- --> 
+
+``` r
 #Product Performance Over Time
 monthly_product_sales <- data %>%
   group_by(YearMonth, Description) %>%
@@ -382,7 +711,29 @@ lowest_products <- monthly_product_sales %>%
   slice_min(MonthlyRevenue, n = 1, with_ties = FALSE)
 
 kable(lowest_products, caption = "Lowest-Selling Product Each Month")
+```
 
+
+
+Table: Lowest-Selling Product Each Month
+
+|YearMonth  |Description                        | MonthlyRevenue|
+|:----------|:----------------------------------|--------------:|
+|2010-12-01 |LUNCH BOX WITH CUTLERY FAIRY CAKES |              0|
+|2011-01-01 |OLD DOC RUSSEL METAL SIGN          |              0|
+|2011-02-01 |DOORMAT MERRY CHRISTMAS RED        |              0|
+|2011-03-01 |DIAMANTE BOW BROOCH RED COLOUR     |              0|
+|2011-04-01 |ACRYLIC HANGING JEWEL,BLUE         |              0|
+|2011-05-01 |ANTIQUE GLASS HEART DECORATION     |              0|
+|2011-06-01 |ANTIQUE GLASS PLACE SETTING        |              0|
+|2011-07-01 |?                                  |              0|
+|2011-08-01 |STRAWBERRY DREAM CHILDS UMBRELLA   |              0|
+|2011-09-01 |CREAM AND PINK FLOWERS PONY        |              0|
+|2011-10-01 |ACRYLIC JEWEL SNOWFLAKE, PINK      |              0|
+|2011-11-01 |BLUE GIANT GARDEN THERMOMETER      |              0|
+|2011-12-01 |BLUE GIANT GARDEN THERMOMETER      |              0|
+
+``` r
 #Products Consistently Among Lowest-Selling
 consistent_low_products <- lowest_products %>%
   group_by(Description) %>%
@@ -394,14 +745,48 @@ consistent_low_products <- lowest_products %>%
 kable(consistent_low_products, caption = "Products Consistently Among Lowest Sellers")
 ```
 
-```{r}
+
+
+Table: Products Consistently Among Lowest Sellers
+
+|Description                        | MonthsAsLowest|
+|:----------------------------------|--------------:|
+|BLUE GIANT GARDEN THERMOMETER      |              2|
+|?                                  |              1|
+|ACRYLIC HANGING JEWEL,BLUE         |              1|
+|ACRYLIC JEWEL SNOWFLAKE, PINK      |              1|
+|ANTIQUE GLASS HEART DECORATION     |              1|
+|ANTIQUE GLASS PLACE SETTING        |              1|
+|CREAM AND PINK FLOWERS PONY        |              1|
+|DIAMANTE BOW BROOCH RED COLOUR     |              1|
+|DOORMAT MERRY CHRISTMAS RED        |              1|
+|LUNCH BOX WITH CUTLERY FAIRY CAKES |              1|
+|OLD DOC RUSSEL METAL SIGN          |              1|
+|STRAWBERRY DREAM CHILDS UMBRELLA   |              1|
+
+
+``` r
 #Identify Highest Sales Months
 top_months <- monthly_revenue %>%
   arrange(desc(TotalRevenue)) %>%
   slice_head(n = 5)
 
 kable(top_months, caption = "Months with Highest Sales")
+```
 
+
+
+Table: Months with Highest Sales
+
+|YearMonth  | TotalRevenue|
+|:----------|------------:|
+|2011-11-01 |      1563226|
+|2011-10-01 |      1214040|
+|2011-09-01 |      1100625|
+|2010-12-01 |       868633|
+|2011-05-01 |       813138|
+
+``` r
 # Identify top 5 highest revenue months
 top_months <- monthly_revenue %>%
   arrange(desc(TotalRevenue)) %>%
@@ -411,7 +796,20 @@ top_months <- monthly_revenue %>%
 kable(top_months, caption = "Months with Highest Sales")
 ```
 
-```{r}
+
+
+Table: Months with Highest Sales
+
+|YearMonth  | TotalRevenue|
+|:----------|------------:|
+|2011-11-01 |      1563226|
+|2011-10-01 |      1214040|
+|2011-09-01 |      1100625|
+|2010-12-01 |       868633|
+|2011-05-01 |       813138|
+
+
+``` r
 # Calculate monthly revenue per product
 monthly_product_sales <- data %>%
   group_by(Year, Month, Description) %>%
@@ -427,11 +825,31 @@ lowest_products <- monthly_product_sales %>%
 
 # Display
 kable(lowest_products, caption = "Lowest Selling Products per Month")
-
 ```
 
 
-```{r}
+
+Table: Lowest Selling Products per Month
+
+| Year| Month|Description                        | MonthlyRevenue|
+|----:|-----:|:----------------------------------|--------------:|
+| 2010|    12|LUNCH BOX WITH CUTLERY FAIRY CAKES |              0|
+| 2011|     1|OLD DOC RUSSEL METAL SIGN          |              0|
+| 2011|     2|DOORMAT MERRY CHRISTMAS RED        |              0|
+| 2011|     3|DIAMANTE BOW BROOCH RED COLOUR     |              0|
+| 2011|     4|ACRYLIC HANGING JEWEL,BLUE         |              0|
+| 2011|     5|ANTIQUE GLASS HEART DECORATION     |              0|
+| 2011|     6|ANTIQUE GLASS PLACE SETTING        |              0|
+| 2011|     7|?                                  |              0|
+| 2011|     8|STRAWBERRY DREAM CHILDS UMBRELLA   |              0|
+| 2011|     9|CREAM AND PINK FLOWERS PONY        |              0|
+| 2011|    10|ACRYLIC JEWEL SNOWFLAKE, PINK      |              0|
+| 2011|    11|BLUE GIANT GARDEN THERMOMETER      |              0|
+| 2011|    12|BLUE GIANT GARDEN THERMOMETER      |              0|
+
+
+
+``` r
 #Monthly revenue trend with Year-Month interaction
 monthly_revenue_interaction <- data %>%
   group_by(Year, Month) %>%
@@ -451,6 +869,8 @@ ggplot(monthly_revenue_interaction,
   ) +
   theme_minimal()
 ```
+
+![](Assignment_files/figure-latex/unnamed-chunk-18-1.pdf)<!-- --> 
 # Interpretation
 
 The time-series analysis shows fluctuations in revenue for different months of the year. Some months show significantly higher revenue, possibly indicating a purchasing season for the products. In the past, retail businesses have shown increased sales in months such as November and December, as people buy gifts and seasonal products. Months with low consumer demand are those with low revenue in the analysis. The analysis has also shown products with consistently low sales in different months.

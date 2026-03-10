@@ -14,6 +14,7 @@ library(kableExtra)
 library(lubridate)
 library(knitr)
 library(ggplot2)
+library(stringr)
 
 ```
 
@@ -113,10 +114,15 @@ top3_percentage
 
 ```{r}
 #Visualisation
-ggplot(top10, aes(x=reorder(Description,TotalRevenue), y=TotalRevenue))+
-  geom_bar(stat="identity")+
-  coord_flip()+
-  labs(title="Top 10 Products by Revenue")
+ggplot(top10, aes(x=reorder(Description, TotalRevenue), y=TotalRevenue)) +
+  geom_bar(stat="identity", fill="steelblue") +
+  coord_flip() +
+  labs(
+    title="Top 10 Products by Revenue",
+    x="Product",
+    y="Total Revenue"
+  ) +
+  theme_minimal()
 ```
 
 ### Interpretation

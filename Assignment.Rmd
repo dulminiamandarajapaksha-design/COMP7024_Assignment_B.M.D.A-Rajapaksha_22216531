@@ -131,9 +131,11 @@ From a business point of view, these findings could be useful in:
 - Identifying products that yield low revenue, which could be given promotional strategies
 - Identifying how revenue is being distributed among products in general.
 
-# #Question 2
+
+##Question 2
 
 ### Explanation
+
 The purpose of this study is to find the most valuable customers. The purchasing behavior of these customers is also analyzed. The customer value is calculated by determining the total revenue obtained from the transactions of these customers. First, the transactions without a CustomerID are removed, as these cannot be attributed to any customer. Then, the total expenditure of each customer is calculated by adding up all the revenue obtained in their transactions. Once the total expenditure of each customer is calculated, these customers are ranked in order to find the top five customers who spend the most. These customers form the most valuable customer group of the company. Further analysis of the purchasing behavior of these customers is done by determining the products that these customers purchase the most. This is done by calculating the total quantity of these products purchased by these customers. This method of analysis provides knowledge about the purchasing behavior of the most important customers of the company.
 
 

@@ -132,7 +132,7 @@ From a business point of view, these findings could be useful in:
 - Identifying how revenue is being distributed among products in general.
 
 
-##Question 2
+## Question 2
 
 ### Explanation
 
